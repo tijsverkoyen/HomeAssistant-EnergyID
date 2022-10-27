@@ -1,0 +1,18 @@
+{
+  "title": "EnergyID",
+  "config": {
+    "error": {
+      "invalid_credentials": "Could not authenticate with the provided credentials."
+    },
+    "step": {
+      "user": {
+        "description": "Enter your EnergyID credentials\n* Record ID: This can be found in the URL, eg: https://app.energyid.eu/record/**XXXXXX**/meters\n* API Key: You can create an API-key in [your account](https://app.energyid.eu/account/settings#dev). You will need one with read and write access.",
+        "data": {
+          "record": "Record ID",
+          "api_key": "API key",
+          "add_another": "Add another record"
+        }
+      }
+    }
+  }
+}
