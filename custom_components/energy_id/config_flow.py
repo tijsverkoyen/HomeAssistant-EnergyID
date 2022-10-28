@@ -1,5 +1,4 @@
 """Config flow for EnergyID integration."""
-import logging
 import voluptuous as vol
 
 from typing import Any, Dict, Optional
@@ -8,8 +7,6 @@ from homeassistant import config_entries
 
 from .const import DOMAIN, CONF_RECORD, CONF_API_KEY
 
-_LOGGER = logging.getLogger(__name__)
-
 
 class EnergyIdConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     data: Optional[Dict[str, Any]] = {
@@ -17,7 +14,6 @@ class EnergyIdConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     }
 
     async def async_step_user(self, user_input: Optional[Dict[str, Any]] = None):
-        _LOGGER.debug(f'async_step_user: {user_input}')
         errors: Dict[str, str] = {}
 
         if not user_input:
