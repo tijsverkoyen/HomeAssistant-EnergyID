@@ -1,0 +1,26 @@
+# Describes the format for available EnergyID services
+set_meter_reading:
+  name: Set new meter reading
+  description: Adds a reading for a given meter.
+  fields:
+    device_id:
+      name: Meter
+      description: The meter to add the reading to.
+      required: true
+      selector:
+        device:
+          integration: 'energy_id'
+          device_class: 'meter'
+          multiple: false
+    date:
+      name: Date
+      description: The date for the reading.
+      required: true
+      selector:
+        date:
+    value:
+      name: Value
+      description: The new value.
+      required: true
+      selector:
+        text:

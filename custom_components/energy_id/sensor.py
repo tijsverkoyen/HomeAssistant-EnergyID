@@ -3,7 +3,7 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.helpers import device_registry as dr
 
-from .const import DOMAIN, CONF_RECORD, CONF_API_KEY, CONF_ENERGY_ID_API_HOST
+from .const import DOMAIN, CONF_RECORD, CONF_API_KEY, CONF_ENERGY_ID_API_HOST, CONF_METER_IDS
 from .meter_reading_coordinator import EnergyIDMeterReadingCoordinator
 from .energy_id.api import EnergyIDApi
 from .meter_reading_sensor import EnergyIDMeterReading
@@ -45,8 +45,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         coordinator = EnergyIDMeterReadingCoordinator(hass, api, meters)
         await coordinator.async_config_entry_first_refresh()
 
+        record_config[CONF_METER_IDS] = []
         entities = []
         for meter in meters:
+            record_config[CONF_METER_IDS].append(meter.id)
             entities.append(EnergyIDMeterReading(coordinator, meter, record, 'last'))
             entities.append(EnergyIDMeterReading(coordinator, meter, record, 'previous'))
 
