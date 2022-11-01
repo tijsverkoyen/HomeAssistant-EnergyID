@@ -22,7 +22,7 @@ class EnergyIDMeterReadingCoordinator(DataUpdateCoordinator):
             hass,
             _LOGGER,
             name="EnergyIDMeterReadingCoordinator",
-            update_interval=timedelta(minutes=1),
+            update_interval=timedelta(minutes=15),
         )
         self.api = api
         self.meters = meters

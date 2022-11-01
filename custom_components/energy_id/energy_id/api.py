@@ -1,7 +1,7 @@
 """API client for EnergyID API."""
 import urllib.parse
 
-from requests import get, HTTPError
+from requests import get, post, HTTPError
 
 from .meter import EnergyIDMeter
 from .record import EnergyIDRecord
@@ -79,38 +79,57 @@ class EnergyIDApi:
             params=params
         )
 
+    def set_meter_readings(self, meter: str, timestamp: str, value: float):
+        return self._do_call(
+            'POST',
+            f'api/v1/Meters/{meter}/readings',
+            data={
+                'timestamp': timestamp,
+                'value': value
+            }
+        )
+
     def _do_call(self, method: str, path: str, **kwargs) -> dict:
         """Make a request."""
         headers = kwargs.get("headers")
         json = kwargs.get("json")
+        data = kwargs.get("data")
 
         if headers is None:
             headers = {}
         else:
             headers = dict(headers)
+
         if json is None:
             json = {}
         else:
             json = dict(json)
 
+        if data is not None:
+            data = dict(data)
+
         headers["authorization"] = 'apikey ' + self._api_key
 
         try:
+            url = f'{self._host}/{path}'
+            if kwargs.get("params") is not None:
+                url = f'{url}?{urllib.parse.urlencode(kwargs.get("params"))}'
+
             if method == 'GET':
-                url = f'{self._host}/{path}'
-                if kwargs.get("params") is not None:
-                    url = f'{url}?{urllib.parse.urlencode(kwargs.get("params"))}'
-
                 response = get(url, headers=headers, json=json)
-                response.raise_for_status()
-                json_data = response.json()
-                _LOGGER.debug(f'JSON data for {url}: {json_data}')
+            if method == 'POST':
+                response = post(url, headers=headers, data=data)
 
-            return response.json()
+            response.raise_for_status()
+
+            json_data = response.json()
+            _LOGGER.debug(f'JSON data for {url}: {json_data}')
+            return json_data
 
         except HTTPError as error:
-            _LOGGER.error(error)
-            raise EnergyIDApiError(f'HTTP Error: {error}')
+            _LOGGER.error(f'error:')
+            _LOGGER.error(response.json())
+            raise EnergyIDApiError(f'HTTP Error: {error}: {response.json()}')
 
 
 class EnergyIDApiError(Exception):

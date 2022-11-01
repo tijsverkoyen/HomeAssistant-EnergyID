@@ -103,7 +103,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
             identifiers={(DOMAIN, f'meter-{self._meter.id}')},
             name=f'{self._meter.name}',
             model=self._meter.meter_type,
-            via_device=(DOMAIN, f'record-{self._record.id}'),
+            via_device=(DOMAIN, f'record-{self._record.id}')
         )
 
     @property
