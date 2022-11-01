@@ -1,8 +1,8 @@
 {
   "domain": "energy_id",
   "name": "EnergyID",
-  "documentation": "https://github.com/tijsverkoyen/Home-Assistant-EnergyID",
-  "issue_tracker": "https://github.com/tijsverkoyen/Home-Assistant-EnergyID/issues",
+  "documentation": "https://github.com/tijsverkoyen/HomeAssistant-EnergyID",
+  "issue_tracker": "https://github.com/tijsverkoyen/HomeAssistant-EnergyID/issues",
   "dependencies": [],
   "config_flow": true,
   "codeowners": [
@@ -11,5 +11,5 @@
   "requirements": [
   ],
   "iot_class": "cloud_polling",
-  "version": "0.0.1"
+  "version": "1.0.0"
 }
