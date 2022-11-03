@@ -1,6 +1,7 @@
 from homeassistant.core import callback, HomeAssistant, ServiceCall
-from homeassistant.helpers import device_registry as dr
+from homeassistant.helpers import device_registry as dr, entity_registry as er
 from homeassistant.helpers.device_registry import DeviceEntry
+from homeassistant.helpers.entity_registry import async_entries_for_device
 from homeassistant.exceptions import HomeAssistantError
 
 from .const import DOMAIN, CONF_RECORD, CONF_METER_IDS, CONF_ENERGY_ID_API_HOST, CONF_API_KEY
@@ -66,6 +67,10 @@ def async_setup_services(hass: HomeAssistant) -> None:
             _LOGGER.debug(f'Service set_meter_reading response: {response}')
         except EnergyIDApiError as e:
             raise HomeAssistantError(f'Invalid response from EnergyID API: {e}')
+
+        entity_registry = er.async_get(hass)
+        entities = async_entries_for_device(entity_registry, device.id)
+        await hass.services.async_call('homeassistant', 'update_entity', {'entity_id': entities[0].entity_id})
 
     hass.services.async_register(
         DOMAIN,
