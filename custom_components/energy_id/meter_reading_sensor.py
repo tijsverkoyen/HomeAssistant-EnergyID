@@ -31,6 +31,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
         self._record = record
         self._attribute = attribute
         self._state = None
+        self._value = None
 
     @property
     def name(self):
@@ -136,12 +137,22 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
         return None
 
     @property
+    def native_value(self) -> float:
+        return self._value
+
+    @property
     def state_class(self) -> str:
         return STATE_CLASS_TOTAL_INCREASING
 
     @property
     def state(self) -> float:
-        return self._state
+        if self._value is None:
+            return None
+
+        if self._meter.multiplier is None:
+            return self._value
+
+        return self._value * self._meter.multiplier
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -150,5 +161,5 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
         _LOGGER.debug(f'Updating meter {self._meter.id} reading {self._attribute} to {reading}')
 
         if reading is not None and reading[RESPONSE_ATTRIBUTE_IGNORE] is False:
-            self._state = reading[RESPONSE_ATTRIBUTE_VALUE]
+            self._value = reading[RESPONSE_ATTRIBUTE_VALUE]
             self.async_write_ha_state()
