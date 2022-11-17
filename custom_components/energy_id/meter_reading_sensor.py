@@ -35,7 +35,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
 
     @property
     def name(self):
-        return f'{self._record.name}: {self._meter.name} - {self._attribute} reading'
+        return f'{self._record.display_name}: {self._meter.name} - {self._attribute} reading'
 
     @property
     def device_class(self) -> str:
@@ -100,11 +100,11 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
     @property
     def device_info(self) -> DeviceInfo:
         return DeviceInfo(
-            configuration_url=f'https://app.energyid.eu/record/{self._record.number}/meters/{self._meter.id}/properties',
+            configuration_url=f'https://app.energyid.eu/record/{self._record.record_number}/meters/{self._meter.id}/properties',
             identifiers={(DOMAIN, f'meter-{self._meter.id}')},
             name=f'{self._meter.name}',
             model=self._meter.meter_type,
-            via_device=(DOMAIN, f'record-{self._record.id}')
+            via_device=(DOMAIN, f'record-{self._record.record_id}')
         )
 
     @property
