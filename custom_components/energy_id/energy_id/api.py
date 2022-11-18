@@ -16,7 +16,7 @@ class EnergyIDApi:
         self._host = host
         self._api_key = api_key
 
-    def get_record(self, record: str, expand: list = None):
+    def get_record(self, record: str, expand: list = None) -> EnergyIDRecord:
         params = None
         if expand is not None:
             params = {
@@ -29,11 +29,7 @@ class EnergyIDApi:
             params=params
         )
 
-        return EnergyIDRecord(
-            response['id'],
-            response['recordNumber'],
-            response['displayName']
-        )
+        return EnergyIDRecord.from_json(response)
 
     def get_record_meters(self, record: str, expand: list = None):
         params = None
@@ -50,19 +46,7 @@ class EnergyIDApi:
 
         data = []
         for meter_data in response:
-            data.append(
-                EnergyIDMeter(
-                    meter_data['id'],
-                    meter_data['recordId'],
-                    meter_data['displayName'],
-                    meter_data['meterType'],
-                    meter_data['metric'],
-                    meter_data['multiplier'],
-                    meter_data['readingType'],
-                    meter_data['theme'],
-                    meter_data['unit']
-                )
-            )
+            data.append(EnergyIDMeter.from_json(meter_data))
 
         return data
 

@@ -35,7 +35,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
 
     @property
     def name(self):
-        return f'{self._record.name}: {self._meter.name} - {self._attribute} reading'
+        return f'{self._record.display_name}: {self._meter.display_name} - {self._attribute} reading'
 
     @property
     def device_class(self) -> str:
@@ -99,17 +99,11 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
 
     @property
     def device_info(self) -> DeviceInfo:
-        return DeviceInfo(
-            configuration_url=f'https://app.energyid.eu/record/{self._record.number}/meters/{self._meter.id}/properties',
-            identifiers={(DOMAIN, f'meter-{self._meter.id}')},
-            name=f'{self._meter.name}',
-            model=self._meter.meter_type,
-            via_device=(DOMAIN, f'record-{self._record.id}')
-        )
+        return self._meter.device_info
 
     @property
     def unique_id(self) -> str:
-        return f'meter-{self._meter.id}-{self._attribute}-reading'
+        return f'meter-{self._meter.meter_id}-{self._attribute}-reading'
 
     @property
     def native_unit_of_measurement(self) -> str:
@@ -157,8 +151,8 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
     @callback
     def _handle_coordinator_update(self) -> None:
         """Handle updated data from the coordinator."""
-        reading = self.coordinator.data[self._meter.id][RESPONSE_ATTRIBUTE_READINGS][self._attribute]
-        _LOGGER.debug(f'Updating meter {self._meter.id} reading {self._attribute} to {reading}')
+        reading = self.coordinator.data[self._meter.meter_id][RESPONSE_ATTRIBUTE_READINGS][self._attribute]
+        _LOGGER.debug(f'Updating meter {self._meter.meter_id} reading {self._attribute} to {reading}')
 
         if reading is not None and reading[RESPONSE_ATTRIBUTE_IGNORE] is False:
             self._value = reading[RESPONSE_ATTRIBUTE_VALUE]
