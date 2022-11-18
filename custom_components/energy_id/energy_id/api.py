@@ -46,19 +46,7 @@ class EnergyIDApi:
 
         data = []
         for meter_data in response:
-            data.append(
-                EnergyIDMeter(
-                    meter_data['id'],
-                    meter_data['recordId'],
-                    meter_data['displayName'],
-                    meter_data['meterType'],
-                    meter_data['metric'],
-                    meter_data['multiplier'],
-                    meter_data['readingType'],
-                    meter_data['theme'],
-                    meter_data['unit']
-                )
-            )
+            data.append(EnergyIDMeter.from_json(meter_data))
 
         return data
 

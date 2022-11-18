@@ -36,11 +36,11 @@ class EnergyIDMeterReadingCoordinator(DataUpdateCoordinator):
         for meter in self.meters:
             response = await self.hass.async_add_executor_job(
                 self.api.get_meter_readings,
-                meter.id,
+                meter.meter_id,
                 2
             )
 
-            data[meter.id] = {}
+            data[meter.meter_id] = {}
             reading_data = {
                 'last': None,
                 'previous': None,
@@ -67,6 +67,6 @@ class EnergyIDMeterReadingCoordinator(DataUpdateCoordinator):
 
                 last_timestamp = timestamp
 
-            data[meter.id][RESPONSE_ATTRIBUTE_READINGS] = reading_data
+            data[meter.meter_id][RESPONSE_ATTRIBUTE_READINGS] = reading_data
 
         return data

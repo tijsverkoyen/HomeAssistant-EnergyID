@@ -6,8 +6,9 @@ from .const import DOMAIN, CONF_RECORD, CONF_API_KEY, CONF_ENERGY_ID_API_HOST, C
 from .meter_reading_coordinator import EnergyIDMeterReadingCoordinator
 from .energy_id.api import EnergyIDApi
 from .meter_reading_sensor import EnergyIDMeterReading
-from .record_diagnostic_entity import EnergyIDRecordDiagnosticEntity
+from .diagnostic_entity import EnergyIDRecordDiagnosticEntity, EnergyIDMeterDiagnosticEntity
 from .energy_id.record import EnergyIDRecord
+from .energy_id.meter import EnergyIDMeter
 
 import logging
 
@@ -40,7 +41,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         record_config[CONF_METER_IDS] = []
         entities = []
         for meter in meters:
-            record_config[CONF_METER_IDS].append(meter.id)
+            record_config[CONF_METER_IDS].append(meter.meter_id)
+            async_add_entities(_entities_for_meter(meter))
             entities.append(EnergyIDMeterReading(coordinator, meter, record, 'last'))
             entities.append(EnergyIDMeterReading(coordinator, meter, record, 'previous'))
 
@@ -56,7 +58,7 @@ def _entities_for_record(record: EnergyIDRecord) -> list:
         EnergyIDRecordDiagnosticEntity(record, 'Record ID', 'record_id', record.record_id),
         EnergyIDRecordDiagnosticEntity(record, 'Owner ID', 'owner_id', record.owner_id),
         EnergyIDRecordDiagnosticEntity(record, 'Record number', 'record_number', record.record_number),
-        EnergyIDRecordDiagnosticEntity(record, 'Record Type', 'record_type', record.record_type),
+        EnergyIDRecordDiagnosticEntity(record, 'Record type', 'record_type', record.record_type),
         EnergyIDRecordDiagnosticEntity(record, 'Timezone', 'timezone', record.time_zone, 'mdi:map-clock'),
     ]
 
@@ -166,5 +168,76 @@ def _entities_for_record(record: EnergyIDRecord) -> list:
         entities_to_add.append(
             EnergyIDRecordDiagnosticEntity(record, 'Premium features', 'premium_features',
                                            ', '.join(record.premium_features)))
+
+    return entities_to_add
+
+
+def _entities_for_meter(meter: EnergyIDMeter) -> list:
+    entities_to_add = [
+        EnergyIDMeterDiagnosticEntity(meter, 'Automatic', 'automatic', meter.automatic),
+        EnergyIDMeterDiagnosticEntity(meter, 'Display name', 'display_name', meter.display_name),
+        EnergyIDMeterDiagnosticEntity(meter, 'Exclude from reports', 'exclude_from_reports', meter.exclude_from_reports),
+        EnergyIDMeterDiagnosticEntity(meter, 'Hidden', 'hidden', meter.hidden),
+        EnergyIDMeterDiagnosticEntity(meter, 'Meter ID', 'meter_id', meter.meter_id),
+        EnergyIDMeterDiagnosticEntity(meter, 'Meter type', 'meter_type', meter.meter_type),
+        EnergyIDMeterDiagnosticEntity(meter, 'Metric', 'metric', meter.metric),
+        EnergyIDMeterDiagnosticEntity(meter, 'Multiplier', 'multiplier', meter.multiplier),
+        EnergyIDMeterDiagnosticEntity(meter, 'Reading type', 'reading_type', meter.reading_type),
+        EnergyIDMeterDiagnosticEntity(meter, 'Record ID', 'record_id', meter.record_id),
+        EnergyIDMeterDiagnosticEntity(meter, 'Theme', 'theme', meter.theme),
+        EnergyIDMeterDiagnosticEntity(meter, 'Unit', 'unit', meter.unit),
+    ]
+
+    if meter.integration_id is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Integration ID', 'integration_id', meter.integration_id))
+    if meter.activated is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Activated', 'activated', meter.activated))
+    if meter.deactivated is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Deactivated', 'deactivated', meter.deactivated))
+    if meter.comments is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Comments', 'comments', meter.comments))
+    if meter.confirmed is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Confirmed', 'confirmed', meter.confirmed))
+    if meter.installation_number is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Installation number', 'installation_number', meter.installation_number))
+    if meter.connection_number is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Connection number', 'connection_number', meter.connection_number))
+    if meter.supplier is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Supplier', 'supplier', meter.supplier))
+    if meter.renewable is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Renewable', 'renewable', meter.renewable))
+    if meter.brand_name is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Brand name', 'brand_name', meter.brand_name))
+    if meter.model_name is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Model name', 'model_name', meter.model_name))
+    if meter.peak_power is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Peak power', 'peak_power', meter.peak_power))
+    if meter.meter_number is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Meter number', 'meter_number', meter.meter_number))
+    if meter.stock_capacity is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Stock capacity', 'stock_capacity', meter.stock_capacity))
+    if meter.interval is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'Interval', 'interval', meter.interval))
+    if meter.qr_key is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'QR key', 'qr_key', meter.qr_key))
+    if meter.qr_type is not None:
+        entities_to_add.append(
+            EnergyIDMeterDiagnosticEntity(meter, 'QR type', 'qr_type', meter.qr_type))
 
     return entities_to_add
