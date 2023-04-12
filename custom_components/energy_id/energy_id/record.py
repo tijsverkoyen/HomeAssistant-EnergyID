@@ -88,10 +88,10 @@ class EnergyIDRecord:
         address = None
         if 'address' in json:
             address = EnergyIDAddress(
-                json['address']['streetAddress'],
-                json['address']['postalCode'],
-                json['address']['city'],
-                json['address']['country']
+                json['address']['streetAddress'] if 'streetAddress' in json['address'] else "",
+                json['address']['postalCode'] if 'postalCode' in json['address'] else "",
+                json['address']['city'] if 'city' in json['address'] else "",
+                json['address']['country'] if 'country' in json['address'] else "",
             )
 
         created = None
