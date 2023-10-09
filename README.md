@@ -25,3 +25,12 @@ These will be updated every 15 minutes.
 ## Services
 ### set_meter_reading
 This services allows you to add a meter reading from within Home Assistant.
+
+
+## FAQ
+### Where can I find the Record ID?
+
+* Log into [EnergyID](https://app.energyid.eu/)
+* Select your Record
+* You will end up on an URL like: `https://app.energyid.eu/record/EA-12345678/meters`
+* The record ID is the part after `/record/` and before `/meters`, so in this example `EA-12345678`.
