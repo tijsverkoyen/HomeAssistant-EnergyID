@@ -37,19 +37,19 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             record_config[CONF_RECORD]
         )
 
-        coordinator = EnergyIDMeterReadingCoordinator(hass, api, meters)
+        meter_reading_coordinator = EnergyIDMeterReadingCoordinator(hass, api, meters)
 
         record_config[CONF_METER_IDS] = []
         entities = []
         for meter in meters:
             record_config[CONF_METER_IDS].append(meter.meter_id)
             async_add_entities(_entities_for_meter(meter))
-            entities.append(EnergyIDMeterReading(coordinator, meter, record, 'last'))
-            entities.append(EnergyIDMeterReading(coordinator, meter, record, 'previous'))
+            entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'last'))
+            entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'previous'))
 
         async_add_entities(entities)
 
-        await coordinator.async_config_entry_first_refresh()
+        await meter_reading_coordinator.async_config_entry_first_refresh()
 
 
 def _entities_for_record(record: EnergyIDRecord) -> list:
