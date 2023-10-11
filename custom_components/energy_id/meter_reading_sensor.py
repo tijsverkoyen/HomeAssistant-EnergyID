@@ -1,10 +1,8 @@
 from homeassistant.helpers.update_coordinator import CoordinatorEntity, DataUpdateCoordinator
 from homeassistant.helpers.entity import DeviceInfo
-from homeassistant.components.sensor import SensorEntity, STATE_CLASS_TOTAL_INCREASING
+from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, SensorStateClass
 from homeassistant.core import callback
-from homeassistant.const import DEVICE_CLASS_ENERGY, DEVICE_CLASS_GAS, DEVICE_CLASS_TEMPERATURE, DEVICE_CLASS_HUMIDITY, \
-    VOLUME_CUBIC_METERS, VOLUME_LITERS, ENERGY_WATT_HOUR, ENERGY_KILO_WATT_HOUR, MASS_KILOGRAMS, LENGTH_KILOMETERS, \
-    TEMP_CELSIUS, PERCENTAGE
+from homeassistant.const import PERCENTAGE, UnitOfEnergy, UnitOfLength, UnitOfMass, UnitOfTemperature, UnitOfVolume
 
 from .energy_id.meter import EnergyIDMeter
 from .energy_id.record import EnergyIDRecord
@@ -44,56 +42,56 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
                                           "finalcoolingconsumption", "solarphotovoltaicproduction",
                                           "solarthermalproduction", "windpowerproduction",
                                           "cogenerationpowerproduction", "electricvehiclecharging"]:
-            return DEVICE_CLASS_ENERGY
+            return SensorDeviceClass.ENERGY
 
         if self._meter.metric.lower() in ["naturalgasimport"]:
             if self._meter.unit.lower() in ["m³"]:
-                return DEVICE_CLASS_GAS
+                return SensorDeviceClass.GAS
             if self._meter.unit.lower() in ["l"]:
-                return 'volume'
+                return SensorDeviceClass.VOLUME
             if self._meter.unit.lower() in ["kWh"]:
-                return DEVICE_CLASS_ENERGY
+                return SensorDeviceClass.ENERGY
 
         if self._meter.metric.lower() in ["pelletsstockdraw", "woodbriquettesstockdraw", "firewoodstockdraw"]:
             if self._meter.unit.lower() in ["kg"]:
-                return 'weight'
+                return SensorDeviceClass.WEIGHT
             if self._meter.unit.lower() in ["m³"]:
-                return 'volume'
+                return SensorDeviceClass.VOLUME
 
         if self._meter.metric.lower() in ["fueloilstockdraw", "fueloilstockbuild"]:
-            return 'volume'
+            return SensorDeviceClass.VOLUME
 
         if self._meter.metric.lower() in ["fueloilstocklevel"]:
             if self._meter.unit.lower() in ["m³"]:
-                return DEVICE_CLASS_GAS
+                return SensorDeviceClass.GAS
             if self._meter.unit.lower() in ["l"]:
-                return 'volume'
+                return SensorDeviceClass.VOLUME
 
         if self._meter.metric.lower() in ["propanestockdraw", "butanestockdraw"]:
             if self._meter.unit.lower() in ["kg"]:
-                return 'weight'
+                return SensorDeviceClass.WEIGHT
             if self._meter.unit.lower() in ["l"]:
-                return 'volume'
+                return SensorDeviceClass.VOLUME
 
         if self._meter.metric.lower() in ["drinkingwaterimport", "rainwaterstockdraw", "groundwaterimport"]:
-            return 'water'
+            return SensorDeviceClass.WATER
 
         if self._meter.metric.lower() in ["indoortemperature", "outdoortemperature"]:
-            return DEVICE_CLASS_TEMPERATURE
+            return SensorDeviceClass.TEMPERATURE
 
         if self._meter.metric.lower() in ["relativeindoorhumidity", "relativeoutdoorhumidity"]:
-            return DEVICE_CLASS_HUMIDITY
+            return SensorDeviceClass.HUMIDITY
 
         if self._meter.metric.lower() in ["distancetravelledbycar", "distancetravelledbybike",
                                           "distancetravelledbyscooter", "distancetravelledbymotor"]:
-            return 'distance'
+            return SensorDeviceClass.DISTANCE
 
         if self._meter.metric.lower() in ["organicwaste", "pmdwaste", "softplasticswaste", "paperandcardboardwaste",
                                           "residualwaste", "glasswaste", "electronicwaste"]:
             if self._meter.unit.lower() in ["kg"]:
-                return 'weight'
+                return SensorDeviceClass.WEIGHT
             if self._meter.unit.lower() in ["l"]:
-                return 'volume'
+                return SensorDeviceClass.VOLUME
 
         return None
 
@@ -112,19 +110,19 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
     @property
     def unit_of_measurement(self) -> str:
         if self._meter.unit.lower() in ["wh"]:
-            return ENERGY_WATT_HOUR
+            return UnitOfEnergy.WATT_HOUR
         if self._meter.unit.lower() in ["kwh"]:
-            return ENERGY_KILO_WATT_HOUR
+            return UnitOfEnergy.KILO_WATT_HOUR
         if self._meter.unit.lower() in ["l"]:
-            return VOLUME_LITERS
+            return UnitOfVolume.LITERS
         if self._meter.unit.lower() in ["m³"]:
-            return VOLUME_CUBIC_METERS
+            return UnitOfVolume.CUBIC_METERS
         if self._meter.unit.lower() in ["kg"]:
-            return MASS_KILOGRAMS
+            return UnitOfMass.KILOGRAMS
         if self._meter.unit.lower() in ["km"]:
-            return LENGTH_KILOMETERS
+            return UnitOfLength.KILOMETERS
         if self._meter.unit.lower() in ["°c"]:
-            return TEMP_CELSIUS
+            return UnitOfTemperature.CELSIUS
         if self._meter.unit.lower() in ["%"]:
             return PERCENTAGE
 
@@ -136,7 +134,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
 
     @property
     def state_class(self) -> str:
-        return STATE_CLASS_TOTAL_INCREASING
+        return SensorStateClass.TOTAL_INCREASING
 
     @property
     def state(self) -> float:
