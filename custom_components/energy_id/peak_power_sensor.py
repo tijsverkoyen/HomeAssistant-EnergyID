@@ -8,9 +8,8 @@ from homeassistant.components.sensor import SensorEntity, SensorDeviceClass, Sen
 from homeassistant.core import callback
 from homeassistant.const import UnitOfPower
 
+from .energy_id.meter import EnergyIDMeter
 from .energy_id.record import EnergyIDRecord
-
-from .const import DOMAIN, RESPONSE_ATTRIBUTE_READINGS, RESPONSE_ATTRIBUTE_VALUE, RESPONSE_ATTRIBUTE_IGNORE
 
 import logging
 
@@ -31,15 +30,17 @@ class EnergyIDRecordPeakPowerPower(CoordinatorEntity, SensorEntity):
             self,
             coordinator: DataUpdateCoordinator,
             record: EnergyIDRecord,
+            meter: EnergyIDMeter,
     ):
         super().__init__(coordinator)
         self._record = record
+        self._meter = meter
         self._value = None
         self._native_unit_of_measurement = UnitOfPower.KILO_WATT
 
     @property
     def device_info(self) -> DeviceInfo | None:
-        return self._record.device_info
+        return self._meter.device_info
 
     @property
     def native_value(self) -> float | None:
@@ -53,11 +54,11 @@ class EnergyIDRecordPeakPowerPower(CoordinatorEntity, SensorEntity):
 class EnergyIDRecordCurrentMonthPeakPowerPower(EnergyIDRecordPeakPowerPower):
     @property
     def name(self):
-        return f'{self._record.display_name}: Current month PeakPower Power'
+        return f'{self._record.display_name}: {self._meter.display_name} - Current month PeakPower Power'
 
     @property
     def unique_id(self) -> str:
-        return f'record-{self._record.record_id}-current-month-peak-power-power'
+        return f'meter-{self._meter.meter_id}-current-month-peak-power-power'
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -68,19 +69,23 @@ class EnergyIDRecordCurrentMonthPeakPowerPower(EnergyIDRecordPeakPowerPower):
             self._native_unit_of_measurement = data['unit']
             value = None
 
-            for serie_data in data['series'][0]['data']:
-                month = datetime.strptime(
-                    re.sub(
-                        '\+([0-2][0-9]):([0-9]{2})$',
-                        fix_datetime_offset,
-                        serie_data['month']
-                    ),
-                    '%Y-%m-%dT%H:%M:%S%z'
-                )
+            for serie in data['series']:
+                if serie['name'] != self._meter.meter_id:
+                    continue
 
-                if month.month == datetime.now().month:
-                    value = serie_data['total']
-                    break
+                for serie_data in data['series'][0]['data']:
+                    month = datetime.strptime(
+                        re.sub(
+                            '\+([0-2][0-9]):([0-9]{2})$',
+                            fix_datetime_offset,
+                            serie_data['month']
+                        ),
+                        '%Y-%m-%dT%H:%M:%S%z'
+                    )
+
+                    if month.month == datetime.now().month:
+                        value = serie_data['total']
+                        break
 
             self._value = value
             self.async_write_ha_state()
@@ -89,11 +94,11 @@ class EnergyIDRecordCurrentMonthPeakPowerPower(EnergyIDRecordPeakPowerPower):
 class EnergyIDRecordLastMonthPeakPowerPower(EnergyIDRecordPeakPowerPower):
     @property
     def name(self):
-        return f'{self._record.display_name}: Last month PeakPower Power'
+        return f'{self._record.display_name}: {self._meter.display_name} - Last month PeakPower Power'
 
     @property
     def unique_id(self) -> str:
-        return f'record-{self._record.record_id}-last-month-peak-power-power'
+        return f'meter-{self._meter.meter_id}-last-month-peak-power-power'
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -105,19 +110,23 @@ class EnergyIDRecordLastMonthPeakPowerPower(EnergyIDRecordPeakPowerPower):
             value = None
             first_day_of_previous_month = datetime.now().replace(day=1) - relativedelta(months=1)
 
-            for serie_data in data['series'][0]['data']:
-                month = datetime.strptime(
-                    re.sub(
-                        '\+([0-2][0-9]):([0-9]{2})$',
-                        fix_datetime_offset,
-                        serie_data['month']
-                    ),
-                    '%Y-%m-%dT%H:%M:%S%z'
-                )
+            for serie in data['series']:
+                if serie['name'] != self._meter.meter_id:
+                    continue
 
-                if month.month == first_day_of_previous_month.month:
-                    value = serie_data['total']
-                    break
+                for serie_data in data['series'][0]['data']:
+                    month = datetime.strptime(
+                        re.sub(
+                            '\+([0-2][0-9]):([0-9]{2})$',
+                            fix_datetime_offset,
+                            serie_data['month']
+                        ),
+                        '%Y-%m-%dT%H:%M:%S%z'
+                    )
+
+                    if month.month == first_day_of_previous_month.month:
+                        value = serie_data['total']
+                        break
 
             self._value = value
             self.async_write_ha_state()
@@ -131,14 +140,16 @@ class EnergyIDRecordPeakPowerDatetime(CoordinatorEntity, SensorEntity):
             self,
             coordinator: DataUpdateCoordinator,
             record: EnergyIDRecord,
+            meter: EnergyIDMeter,
     ):
         super().__init__(coordinator)
         self._record = record
+        self._meter = meter
         self._value = None
 
     @property
     def device_info(self) -> DeviceInfo | None:
-        return self._record.device_info
+        return self._meter.device_info
 
     @property
     def native_value(self) -> datetime | None:
@@ -148,11 +159,11 @@ class EnergyIDRecordPeakPowerDatetime(CoordinatorEntity, SensorEntity):
 class EnergyIDRecordCurrentMonthPeakPowerDatetime(EnergyIDRecordPeakPowerDatetime):
     @property
     def name(self):
-        return f'{self._record.display_name}: Current month PeakPower Datetime'
+        return f'{self._record.display_name}: {self._meter.display_name} - Current month PeakPower Datetime'
 
     @property
     def unique_id(self) -> str:
-        return f'record-{self._record.record_id}-current-month-peak-power-datetime'
+        return f'meter-{self._meter.meter_id}-current-month-peak-power-datetime'
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -162,26 +173,30 @@ class EnergyIDRecordCurrentMonthPeakPowerDatetime(EnergyIDRecordPeakPowerDatetim
         if data is not None:
             value = None
 
-            for serie_data in data['series'][0]['data']:
-                month = datetime.strptime(
-                    re.sub(
-                        '\+([0-2][0-9]):([0-9]{2})$',
-                        fix_datetime_offset,
-                        serie_data['month']
-                    ),
-                    '%Y-%m-%dT%H:%M:%S%z'
-                )
+            for serie in data['series']:
+                if serie['name'] != self._meter.meter_id:
+                    continue
 
-                if month.month == datetime.now().month:
-                    value = datetime.strptime(
+                for serie_data in data['series'][0]['data']:
+                    month = datetime.strptime(
                         re.sub(
                             '\+([0-2][0-9]):([0-9]{2})$',
                             fix_datetime_offset,
-                            serie_data['timestamp']
+                            serie_data['month']
                         ),
                         '%Y-%m-%dT%H:%M:%S%z'
                     )
-                    break
+
+                    if month.month == datetime.now().month:
+                        value = datetime.strptime(
+                            re.sub(
+                                '\+([0-2][0-9]):([0-9]{2})$',
+                                fix_datetime_offset,
+                                serie_data['timestamp']
+                            ),
+                            '%Y-%m-%dT%H:%M:%S%z'
+                        )
+                        break
 
             self._value = value
             self.async_write_ha_state()
@@ -190,11 +205,11 @@ class EnergyIDRecordCurrentMonthPeakPowerDatetime(EnergyIDRecordPeakPowerDatetim
 class EnergyIDRecordLastMonthPeakPowerDatetime(EnergyIDRecordPeakPowerDatetime):
     @property
     def name(self):
-        return f'{self._record.display_name}: Last PeakPower Datetime'
+        return f'{self._record.display_name}: {self._meter.display_name} - Last month PeakPower Datetime'
 
     @property
     def unique_id(self) -> str:
-        return f'record-{self._record.record_id}-last-month-peak-power-datetime'
+        return f'meter-{self._meter.meter_id}-last-month-peak-power-datetime'
 
     @callback
     def _handle_coordinator_update(self) -> None:
@@ -205,26 +220,30 @@ class EnergyIDRecordLastMonthPeakPowerDatetime(EnergyIDRecordPeakPowerDatetime):
             value = None
             first_day_of_previous_month = datetime.now().replace(day=1) - relativedelta(months=1)
 
-            for serie_data in data['series'][0]['data']:
-                month = datetime.strptime(
-                    re.sub(
-                        '\+([0-2][0-9]):([0-9]{2})$',
-                        fix_datetime_offset,
-                        serie_data['month']
-                    ),
-                    '%Y-%m-%dT%H:%M:%S%z'
-                )
+            for serie in data['series']:
+                if serie['name'] != self._meter.meter_id:
+                    continue
 
-                if month.month == first_day_of_previous_month.month:
-                    value = datetime.strptime(
+                for serie_data in data['series'][0]['data']:
+                    month = datetime.strptime(
                         re.sub(
                             '\+([0-2][0-9]):([0-9]{2})$',
                             fix_datetime_offset,
-                            serie_data['timestamp']
+                            serie_data['month']
                         ),
                         '%Y-%m-%dT%H:%M:%S%z'
                     )
-                    break
+
+                    if month.month == first_day_of_previous_month.month:
+                        value = datetime.strptime(
+                            re.sub(
+                                '\+([0-2][0-9]):([0-9]{2})$',
+                                fix_datetime_offset,
+                                serie_data['timestamp']
+                            ),
+                            '%Y-%m-%dT%H:%M:%S%z'
+                        )
+                        break
 
             self._value = value
             self.async_write_ha_state()

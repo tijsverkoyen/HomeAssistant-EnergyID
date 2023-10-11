@@ -33,16 +33,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             record_config[CONF_RECORD]
         )
 
-        record_peak_power_coordinator = EnergyIDRecordPeakPowerCoordinator(hass, api, record)
-
         entities = _entities_for_record(record)
-        entities.append(EnergyIDRecordCurrentMonthPeakPowerPower(record_peak_power_coordinator, record))
-        entities.append(EnergyIDRecordCurrentMonthPeakPowerDatetime(record_peak_power_coordinator, record))
-        entities.append(EnergyIDRecordLastMonthPeakPowerPower(record_peak_power_coordinator, record))
-        entities.append(EnergyIDRecordLastMonthPeakPowerDatetime(record_peak_power_coordinator, record))
         async_add_entities(entities)
-
-        await record_peak_power_coordinator.async_config_entry_first_refresh()
 
         meters = await hass.async_add_executor_job(
             api.get_record_meters,
@@ -50,6 +42,9 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
         )
 
         meter_reading_coordinator = EnergyIDMeterReadingCoordinator(hass, api, meters)
+
+        if record.plan == "premium" or record.plan == "premiumHr":
+            record_peak_power_coordinator = EnergyIDRecordPeakPowerCoordinator(hass, api, record)
 
         record_config[CONF_METER_IDS] = []
         entities = []
@@ -59,9 +54,22 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'last'))
             entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'previous'))
 
+            if record.plan == "premium" or record.plan == "premiumHr":
+                if meter.meter_type == 'electricity' and meter.metric == 'gridImportActivePower':
+                    entities.append(
+                        EnergyIDRecordCurrentMonthPeakPowerPower(record_peak_power_coordinator, record, meter))
+                    entities.append(
+                        EnergyIDRecordCurrentMonthPeakPowerDatetime(record_peak_power_coordinator, record, meter))
+                    entities.append(EnergyIDRecordLastMonthPeakPowerPower(record_peak_power_coordinator, record, meter))
+                    entities.append(
+                        EnergyIDRecordLastMonthPeakPowerDatetime(record_peak_power_coordinator, record, meter))
+
         async_add_entities(entities)
 
         await meter_reading_coordinator.async_config_entry_first_refresh()
+
+        if record.plan == "premium" or record.plan == "premiumHr":
+            await record_peak_power_coordinator.async_config_entry_first_refresh()
 
 
 def _entities_for_record(record: EnergyIDRecord) -> list:
