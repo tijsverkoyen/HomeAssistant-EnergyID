@@ -3,12 +3,16 @@ from homeassistant.core import HomeAssistant
 from homeassistant.config_entries import ConfigEntry
 
 from .const import DOMAIN, CONF_RECORD, CONF_API_KEY, CONF_ENERGY_ID_API_HOST, CONF_METER_IDS
-from .meter_reading_coordinator import EnergyIDMeterReadingCoordinator
 from .energy_id.api import EnergyIDApi
-from .meter_reading_sensor import EnergyIDMeterReading
-from .diagnostic_entity import EnergyIDRecordDiagnosticEntity, EnergyIDMeterDiagnosticEntity
-from .energy_id.record import EnergyIDRecord
 from .energy_id.meter import EnergyIDMeter
+from .energy_id.record import EnergyIDRecord
+from .diagnostic_entity import EnergyIDRecordDiagnosticEntity, EnergyIDMeterDiagnosticEntity
+from .meter_reading_coordinator import EnergyIDMeterReadingCoordinator
+from .meter_reading_sensor import EnergyIDMeterReading
+from .peak_power_coordinator import EnergyIDRecordPeakPowerCoordinator
+from .peak_power_sensor import EnergyIDRecordCurrentMonthPeakPowerPower, \
+    EnergyIDRecordCurrentMonthPeakPowerDatetime, EnergyIDRecordLastMonthPeakPowerPower, \
+    EnergyIDRecordLastMonthPeakPowerDatetime
 
 import logging
 
@@ -29,8 +33,16 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             record_config[CONF_RECORD]
         )
 
+        record_peak_power_coordinator = EnergyIDRecordPeakPowerCoordinator(hass, api, record)
+
         entities = _entities_for_record(record)
+        entities.append(EnergyIDRecordCurrentMonthPeakPowerPower(record_peak_power_coordinator, record))
+        entities.append(EnergyIDRecordCurrentMonthPeakPowerDatetime(record_peak_power_coordinator, record))
+        entities.append(EnergyIDRecordLastMonthPeakPowerPower(record_peak_power_coordinator, record))
+        entities.append(EnergyIDRecordLastMonthPeakPowerDatetime(record_peak_power_coordinator, record))
         async_add_entities(entities)
+
+        await record_peak_power_coordinator.async_config_entry_first_refresh()
 
         meters = await hass.async_add_executor_job(
             api.get_record_meters,
