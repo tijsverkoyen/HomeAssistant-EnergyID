@@ -29,7 +29,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             record_config[CONF_RECORD]
         )
 
-        async_add_entities(_entities_for_record(record))
+        entities = _entities_for_record(record)
+        async_add_entities(entities)
 
         meters = await hass.async_add_executor_job(
             api.get_record_meters,
