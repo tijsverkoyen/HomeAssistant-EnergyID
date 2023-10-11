@@ -1,5 +1,6 @@
 """API client for EnergyID API."""
 import urllib.parse
+import datetime
 
 from requests import get, post, HTTPError
 
@@ -49,6 +50,18 @@ class EnergyIDApi:
             data.append(EnergyIDMeter.from_json(meter_data))
 
         return data
+
+    def get_record_analyse_peak_power(self, record: str, start: datetime, end: datetime):
+        params = {
+            "start": start.strftime('%Y-%m-%d'),
+            "end": end.strftime('%Y-%m-%d')
+        }
+
+        return self._do_call(
+            'GET',
+            f'api/v1/records/{record}/analyses/peakPower',
+            params=params
+        )
 
     def get_meter_readings(self, meter: str, take: int = 20, next_row_key: str = None):
         params = {

@@ -21,6 +21,15 @@ For each meter in EnergyID there will be a sensor for the:
 
 These will be updated every 15 minutes.
 
+### EnergyID Premium and Premium HR
+The following will only be available for Premium and Premium HR users.
+
+For each meter in EnergyID there will be a sensor for the:
+
+* current month Peak Power Power (kW)
+* last month Peak Power Power (kW)
+* current month Peak Power Datetime 
+* last month Peak Power Datetime 
 
 ## Services
 ### set_meter_reading
