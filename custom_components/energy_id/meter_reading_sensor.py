@@ -49,7 +49,7 @@ class EnergyIDMeterReading(CoordinatorEntity, SensorEntity):
                 return SensorDeviceClass.GAS
             if self._meter.unit.lower() in ["l"]:
                 return SensorDeviceClass.VOLUME
-            if self._meter.unit.lower() in ["kWh"]:
+            if self._meter.unit.lower() in ["kwh"]:
                 return SensorDeviceClass.ENERGY
 
         if self._meter.metric.lower() in ["pelletsstockdraw", "woodbriquettesstockdraw", "firewoodstockdraw"]:
