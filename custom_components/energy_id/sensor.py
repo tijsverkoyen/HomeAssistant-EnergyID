@@ -66,10 +66,10 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
 
         async_add_entities(entities)
 
-        await meter_reading_coordinator.async_config_entry_first_refresh()
+        await meter_reading_coordinator.async_refresh()
 
         if record.plan == "premium" or record.plan == "premiumHr":
-            await record_peak_power_coordinator.async_config_entry_first_refresh()
+            await record_peak_power_coordinator.async_refresh()
 
 
 def _entities_for_record(record: EnergyIDRecord) -> list:
