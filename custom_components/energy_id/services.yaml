@@ -10,7 +10,6 @@ set_meter_reading:
       selector:
         device:
           integration: 'energy_id'
-          device_class: 'meter'
           multiple: false
     date:
       name: Date
