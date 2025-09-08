@@ -16,7 +16,7 @@ set_meter_reading:
       description: The date for the reading.
       required: true
       selector:
-        date:
+        datetime:
     value:
       name: Value
       description: The new value.
