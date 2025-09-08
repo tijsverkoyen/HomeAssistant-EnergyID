@@ -7,11 +7,12 @@ from homeassistant.exceptions import HomeAssistantError
 from .const import DOMAIN, CONF_RECORD, CONF_METER_IDS, CONF_ENERGY_ID_API_HOST, CONF_API_KEY
 
 from .energy_id.api import EnergyIDApi, EnergyIDApiError
-from dateutil.parser import parse
 
 import pytz
 import voluptuous as vol
 import logging
+
+from dateutil.parser import parse
 
 _LOGGER = logging.getLogger(__name__)
 
