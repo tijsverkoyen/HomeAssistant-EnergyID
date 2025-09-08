@@ -7,7 +7,9 @@ from homeassistant.exceptions import HomeAssistantError
 from .const import DOMAIN, CONF_RECORD, CONF_METER_IDS, CONF_ENERGY_ID_API_HOST, CONF_API_KEY
 
 from .energy_id.api import EnergyIDApi, EnergyIDApiError
+from dateutil.parser import parse
 
+import pytz
 import voluptuous as vol
 import logging
 
@@ -57,11 +59,17 @@ def async_setup_services(hass: HomeAssistant) -> None:
 
         api = EnergyIDApi(CONF_ENERGY_ID_API_HOST, meter_record[CONF_API_KEY])
 
+        converted_date = parse(call.data['date'])
+        if converted_date.tzinfo is None:
+            # Assume local timezone if none provided
+            local_tz = pytz.timezone(hass.config.time_zone)
+            converted_date = local_tz.localize(converted_date)
+
         try:
             response = await hass.async_add_executor_job(
                 api.set_meter_readings,
                 meter_id,
-                call.data['date'],
+                converted_date.strftime("%Y-%m-%d %H:%M:%S%z"),
                 call.data['value'],
             )
             _LOGGER.debug(f'Service set_meter_reading response: {response}')
