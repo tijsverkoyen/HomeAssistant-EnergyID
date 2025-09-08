@@ -10,14 +10,13 @@ set_meter_reading:
       selector:
         device:
           integration: 'energy_id'
-          device_class: 'meter'
           multiple: false
     date:
       name: Date
       description: The date for the reading.
       required: true
       selector:
-        date:
+        datetime:
     value:
       name: Value
       description: The new value.
