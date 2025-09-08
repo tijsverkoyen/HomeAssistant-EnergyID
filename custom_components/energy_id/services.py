@@ -70,7 +70,7 @@ def async_setup_services(hass: HomeAssistant) -> None:
             response = await hass.async_add_executor_job(
                 api.set_meter_readings,
                 meter_id,
-                converted_date.strftime("%Y-%m-%d %H:%M:%S%z"),
+                converted_date.isoformat(),
                 call.data['value'],
             )
             _LOGGER.debug(f'Service set_meter_reading response: {response}')
