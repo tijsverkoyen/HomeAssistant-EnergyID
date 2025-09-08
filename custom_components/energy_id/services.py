@@ -12,7 +12,7 @@ import pytz
 import voluptuous as vol
 import logging
 
-from dateutil.parser import parse
+from dateutil.parser import parse, ParserError
 
 _LOGGER = logging.getLogger(__name__)
 
