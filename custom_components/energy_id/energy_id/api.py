@@ -59,7 +59,7 @@ class EnergyIDApi:
 
         return self._do_call(
             'GET',
-            f'api/v1/records/{record}/analyses/peakPower',
+            f'api/v1/records/{record}/analyses/capacity',
             params=params
         )
 

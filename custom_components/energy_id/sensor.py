@@ -53,9 +53,8 @@ async def async_setup_entry(hass: HomeAssistant, config_entry: ConfigEntry, asyn
             async_add_entities(_entities_for_meter(meter))
             entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'last'))
             entities.append(EnergyIDMeterReading(meter_reading_coordinator, meter, record, 'previous'))
-
             if record.plan == "premium" or record.plan == "premiumHr":
-                if meter.meter_type == 'electricity' and meter.metric == 'gridImportActivePower':
+                if meter.meter_type == 'electricity' and meter.metric in ['gridImportActivePower', 'electricityImport']:
                     entities.append(
                         EnergyIDRecordCurrentMonthPeakPowerPower(record_peak_power_coordinator, record, meter))
                     entities.append(

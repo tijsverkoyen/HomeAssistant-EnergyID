@@ -28,11 +28,9 @@ class EnergyIDRecordPeakPowerCoordinator(DataUpdateCoordinator):
     async def _async_update_data(self):
         def fix_datetime_offset(match):
             return f'+{match.group(1)}{match.group(2)}'
-
         today = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
         first_day_of_previous_month = today.replace(day=1) - relativedelta(months=1)
         last_day_of_current_month = today + relativedelta(day=31)
-
         response = await self.hass.async_add_executor_job(
             self.api.get_record_analyse_peak_power,
             self.record.record_number,
@@ -40,9 +38,8 @@ class EnergyIDRecordPeakPowerCoordinator(DataUpdateCoordinator):
             last_day_of_current_month
         )
 
-        if RESPONSE_ATTRIBUTE_VALUE in response:
-            for value in response[RESPONSE_ATTRIBUTE_VALUE]:
-                if value['id'] == f'/records/{self.record.record_id}/analyses/peakPower':
-                    return value
+        if "powerData" in response and "id" in response["powerData"]:
+            if  response["powerData"]['id'] == f'/records/{self.record.record_id}/data/gridImportActivePower':
+                return response
 
         return None
